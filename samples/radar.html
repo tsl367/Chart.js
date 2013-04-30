@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<title>Radar Chart</title>
-		<script src="Chart.js"></script>
+		<script src="../Chart.js"></script>
 		<meta name = "viewport" content = "initial-scale = 1, user-scalable = no">
 		<style>
 			canvas{
@@ -36,12 +36,8 @@
 			
 		}
 
-	var myRadar = new Chart(document.getElementById("canvas").getContext("2d"), {
-		offset: {
-			left: 10,
-			top: 0
-		}
-	}).Radar(radarChartData,{scaleShowLabels : false, pointLabelFontSize : 10});
+	var myChart = new Chart(document.getElementById("canvas").getContext("2d")),
+		myRadar = myChart.Radar(radarChartData,{scaleShowLabels : false, pointLabelFontSize : 10});
 	
 	</script>
 	</body>
