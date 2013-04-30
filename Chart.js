@@ -180,17 +180,17 @@ window.Chart = function(context, options){
 					this.ctx.putImageData(this.highlightState,0,0);
 				}
 			}
-			var posX = x+options.tooltips.offset.left,
-				posY = y+options.tooltips.offset.top,
-				tpl = tmpl(options.tooltips.labelTemplate, this.data),
-				rectWidth = options.tooltips.padding.left+this.ctx.measureText(tpl).width+options.tooltips.padding.right,
-				position = options.tooltips.position.split(" "),
-				height = options.tooltips.height;
+			var posX = x+chart.options.tooltips.offset.left,
+				posY = y+chart.options.tooltips.offset.top,
+				tpl = tmpl(chart.options.tooltips.labelTemplate, this.data),
+				rectWidth = chart.options.tooltips.padding.left+this.ctx.measureText(tpl).width+chart.options.tooltips.padding.right,
+				position = chart.options.tooltips.position.split(" "),
+				height = chart.options.tooltips.height;
 
 			// adjust height on fontsize
-			if(options.tooltips.fontSize.match(/[0-9]+(.[0-9]+)?px/)) {
-				height = parseInt(options.tooltips.fontSize);
-			} else if(options.tooltips.fontSize.match(/[0-9]+(.[0-9]+)?(\%|em)/)) {
+			if(chart.options.tooltips.fontSize.match(/[0-9]+(.[0-9]+)?px/)) {
+				height = parseInt(chart.options.tooltips.fontSize);
+			} else if(chart.options.tooltips.fontSize.match(/[0-9]+(.[0-9]+)?(\%|em)/)) {
 				function getDefaultFontSize(pa) {
 					pa = pa || document.body;
 					var who = document.createElement('div');
@@ -203,14 +203,14 @@ window.Chart = function(context, options){
 					pa.removeChild(who);
 					return fs[1];
 				}
-				var size = parseFloat(options.tooltips.fontSize);
-				if(options.tooltips.fontSize.match(/[0-9]+(.[0-9]+)?\%/)) {
+				var size = parseFloat(chart.options.tooltips.fontSize);
+				if(chart.options.tooltips.fontSize.match(/[0-9]+(.[0-9]+)?\%/)) {
 					size /= 100;
 				}
 				height = size*getDefaultFontSize(this.ctx.canvas.parentNode);
 			}
 
-			height += options.tooltips.padding.top+options.tooltips.padding.bottom;
+			height += chart.options.tooltips.padding.top+chart.options.tooltips.padding.bottom;
 
 			// check relative position
 			for(var i in position) {
@@ -246,22 +246,22 @@ window.Chart = function(context, options){
 			if(posY < 0) {
 				posY = 0;
 			}
-			this.ctx.fillStyle = options.tooltips.background;
-			if(options.tooltips.showShadow) {
-				this.ctx.shadowColor = options.tooltips.shadow.color;
-				this.ctx.shadowBlur = options.tooltips.shadow.blur;
-				this.ctx.shadowOffsetX = options.tooltips.shadow.offsetX;
-				this.ctx.shadowOffsetY = options.tooltips.shadow.offsetY;
+			this.ctx.fillStyle = chart.options.tooltips.background;
+			if(chart.options.tooltips.showShadow) {
+				this.ctx.shadowColor = chart.options.tooltips.shadow.color;
+				this.ctx.shadowBlur = chart.options.tooltips.shadow.blur;
+				this.ctx.shadowOffsetX = chart.options.tooltips.shadow.offsetX;
+				this.ctx.shadowOffsetY = chart.options.tooltips.shadow.offsetY;
 			}
-			if(!options.tooltips.border.radius) {
+			if(!chart.options.tooltips.border.radius) {
 				this.ctx.fillRect(posX, posY, rectWidth, height);
-				if(options.tooltips.border.width > 0) {
-					this.ctx.fillStyle = options.tooltips.border.color;
-					this.ctx.lineWidth = options.tooltips.border.width;
+				if(chart.options.tooltips.border.width > 0) {
+					this.ctx.fillStyle = chart.options.tooltips.border.color;
+					this.ctx.lineWidth = chart.options.tooltips.border.width;
 					this.ctx.strokeRect(posX, posY, rectWidth, height);
 				}
 			} else {
-				var radius = options.tooltips.border.radius > 12 ? 12 : options.tooltips.border.radius;
+				var radius = chart.options.tooltips.border.radius > 12 ? 12 : chart.options.tooltips.border.radius;
 				this.ctx.beginPath();
 				this.ctx.moveTo(posX+radius, posY);
 				this.ctx.lineTo(posX+rectWidth-radius, posY);
@@ -273,15 +273,15 @@ window.Chart = function(context, options){
 				this.ctx.lineTo(posX, posY+radius);
 				this.ctx.quadraticCurveTo(posX, posY, posX+radius, posY);
 				this.ctx.fill();
-				if(options.tooltips.border.width > 0) {
-					this.ctx.strokeStyle = options.tooltips.border.color;
-					this.ctx.lineWidth = options.tooltips.border.width;
+				if(chart.options.tooltips.border.width > 0) {
+					this.ctx.strokeStyle = chart.options.tooltips.border.color;
+					this.ctx.lineWidth = chart.options.tooltips.border.width;
 					this.ctx.stroke();
 				}
 				this.ctx.closePath();
 			}
-			this.ctx.font = options.tooltips.fontStyle+ " "+options.tooltips.fontSize+" " + options.tooltips.fontFamily;
-			this.ctx.fillStyle = options.tooltips.fontColor;
+			this.ctx.font = chart.options.tooltips.fontStyle+ " "+chart.options.tooltips.fontSize+" " + chart.options.tooltips.fontFamily;
+			this.ctx.fillStyle = chart.options.tooltips.fontColor;
 			this.ctx.textAlign = 'center';
 			this.ctx.textBaseline = 'middle';
 			this.ctx.fillText(tpl, posX+rectWidth/2, posY+height/2);
