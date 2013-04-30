@@ -2,176 +2,81 @@
 var Chart = function(context, options){
 	
 	var chart = this;
-	
-	
-	//Easing functions adapted from Robert Penner's easing equations
-	//http://www.robertpenner.com/easing/
-	
-	var animationOptions = {
-		linear : function (t){
-			return t;
-		},
-		easeInQuad: function (t) {
-			return t*t;
-		},
-		easeOutQuad: function (t) {
-			return -1 *t*(t-2);
-		},
-		easeInOutQuad: function (t) {
-			if ((t/=1/2) < 1) return 1/2*t*t;
-			return -1/2 * ((--t)*(t-2) - 1);
-		},
-		easeInCubic: function (t) {
-			return t*t*t;
-		},
-		easeOutCubic: function (t) {
-			return 1*((t=t/1-1)*t*t + 1);
-		},
-		easeInOutCubic: function (t) {
-			if ((t/=1/2) < 1) return 1/2*t*t*t;
-			return 1/2*((t-=2)*t*t + 2);
-		},
-		easeInQuart: function (t) {
-			return t*t*t*t;
-		},
-		easeOutQuart: function (t) {
-			return -1 * ((t=t/1-1)*t*t*t - 1);
-		},
-		easeInOutQuart: function (t) {
-			if ((t/=1/2) < 1) return 1/2*t*t*t*t;
-			return -1/2 * ((t-=2)*t*t*t - 2);
-		},
-		easeInQuint: function (t) {
-			return 1*(t/=1)*t*t*t*t;
-		},
-		easeOutQuint: function (t) {
-			return 1*((t=t/1-1)*t*t*t*t + 1);
-		},
-		easeInOutQuint: function (t) {
-			if ((t/=1/2) < 1) return 1/2*t*t*t*t*t;
-			return 1/2*((t-=2)*t*t*t*t + 2);
-		},
-		easeInSine: function (t) {
-			return -1 * Math.cos(t/1 * (Math.PI/2)) + 1;
-		},
-		easeOutSine: function (t) {
-			return 1 * Math.sin(t/1 * (Math.PI/2));
-		},
-		easeInOutSine: function (t) {
-			return -1/2 * (Math.cos(Math.PI*t/1) - 1);
-		},
-		easeInExpo: function (t) {
-			return (t==0) ? 1 : 1 * Math.pow(2, 10 * (t/1 - 1));
-		},
-		easeOutExpo: function (t) {
-			return (t==1) ? 1 : 1 * (-Math.pow(2, -10 * t/1) + 1);
-		},
-		easeInOutExpo: function (t) {
-			if (t==0) return 0;
-			if (t==1) return 1;
-			if ((t/=1/2) < 1) return 1/2 * Math.pow(2, 10 * (t - 1));
-			return 1/2 * (-Math.pow(2, -10 * --t) + 2);
-			},
-		easeInCirc: function (t) {
-			if (t>=1) return t;
-			return -1 * (Math.sqrt(1 - (t/=1)*t) - 1);
-		},
-		easeOutCirc: function (t) {
-			return 1 * Math.sqrt(1 - (t=t/1-1)*t);
-		},
-		easeInOutCirc: function (t) {
-			if ((t/=1/2) < 1) return -1/2 * (Math.sqrt(1 - t*t) - 1);
-			return 1/2 * (Math.sqrt(1 - (t-=2)*t) + 1);
-		},
-		easeInElastic: function (t) {
-			var s=1.70158;var p=0;var a=1;
-			if (t==0) return 0;  if ((t/=1)==1) return 1;  if (!p) p=1*.3;
-			if (a < Math.abs(1)) { a=1; var s=p/4; }
-			else var s = p/(2*Math.PI) * Math.asin (1/a);
-			return -(a*Math.pow(2,10*(t-=1)) * Math.sin( (t*1-s)*(2*Math.PI)/p ));
-		},
-		easeOutElastic: function (t) {
-			var s=1.70158;var p=0;var a=1;
-			if (t==0) return 0;  if ((t/=1)==1) return 1;  if (!p) p=1*.3;
-			if (a < Math.abs(1)) { a=1; var s=p/4; }
-			else var s = p/(2*Math.PI) * Math.asin (1/a);
-			return a*Math.pow(2,-10*t) * Math.sin( (t*1-s)*(2*Math.PI)/p ) + 1;
-		},
-		easeInOutElastic: function (t) {
-			var s=1.70158;var p=0;var a=1;
-			if (t==0) return 0;  if ((t/=1/2)==2) return 1;  if (!p) p=1*(.3*1.5);
-			if (a < Math.abs(1)) { a=1; var s=p/4; }
-			else var s = p/(2*Math.PI) * Math.asin (1/a);
-			if (t < 1) return -.5*(a*Math.pow(2,10*(t-=1)) * Math.sin( (t*1-s)*(2*Math.PI)/p ));
-			return a*Math.pow(2,-10*(t-=1)) * Math.sin( (t*1-s)*(2*Math.PI)/p )*.5 + 1;
-		},
-		easeInBack: function (t) {
-			var s = 1.70158;
-			return 1*(t/=1)*t*((s+1)*t - s);
-		},
-		easeOutBack: function (t) {
-			var s = 1.70158;
-			return 1*((t=t/1-1)*t*((s+1)*t + s) + 1);
-		},
-		easeInOutBack: function (t) {
-			var s = 1.70158; 
-			if ((t/=1/2) < 1) return 1/2*(t*t*(((s*=(1.525))+1)*t - s));
-			return 1/2*((t-=2)*t*(((s*=(1.525))+1)*t + s) + 2);
-		},
-		easeInBounce: function (t) {
-			return 1 - animationOptions.easeOutBounce (1-t);
-		},
-		easeOutBounce: function (t) {
-			if ((t/=1) < (1/2.75)) {
-				return 1*(7.5625*t*t);
-			} else if (t < (2/2.75)) {
-				return 1*(7.5625*(t-=(1.5/2.75))*t + .75);
-			} else if (t < (2.5/2.75)) {
-				return 1*(7.5625*(t-=(2.25/2.75))*t + .9375);
-			} else {
-				return 1*(7.5625*(t-=(2.625/2.75))*t + .984375);
-			}
-		},
-		easeInOutBounce: function (t) {
-			if (t < 1/2) return animationOptions.easeInBounce (t*2) * .5;
-			return animationOptions.easeOutBounce (t*2-1) * .5 + 1*.5;
-		}
-	};
 
 	this.tooltips = [],
-		defaults = {
-			tooltips: {
-				background: 'rgba(0,0,0,0.6)',
-				fontFamily : "'Arial'",
-				fontStyle : "normal",
-				fontColor: 'white',
-				fontSize: '12px',
-				labelTemplate: '<%=label%>: <%=value%>',
-				padding: {
-					top: 10,
-					right: 10,
-					bottom: 10,
-					left: 10
-				},
-				offset: {
-					left: 0,
-					top: 0
-				},
-				border: {
-					width: 0,
-					color: '#000'
-				},
-				showHighlight: true,
-				highlight: {
-					stroke: {
-						width: 1,
-						color: 'rgba(230,230,230,0.25)'
-					},
-					fill: 'rgba(255,255,255,0.25)'
-				}
+	defaults = {
+		animate: true,
+		animation: {
+			steps: 80,
+			easing: 'easeOutBounce',
+			rotate: false,
+			scale: true,
+			onComplete: null
+		},
+		scale: {
+			overlay: true,
+			override: false,
+			steps: null,
+			stepWidth: null,
+			startValue: null
+		},
+		grid: {
+			width: 0,
+			color: "rgba(0,0,0,.1)"
+		},
+		labels: {
+			show: true,
+			template: "<%=value%>",
+			font: {
+				family: "'Arial'",
+				size: 12,
+				style: "normal",
+				color: "#666"
+			},
+			backdrop: {
+				show: true,
+				color: "rgba(255,255,255,0.75)",
+				paddingY: 2,
+				paddingX: 2
 			}
 		},
-		options = (options) ? mergeChartConfig(defaults, options) : defaults;
+		stroke: {
+			width: 0,
+			color: "#FFF"
+		},
+		tooltips: {
+			show: true,
+			background: 'rgba(0,0,0,0.6)',
+			fontFamily : "'Arial'",
+			fontStyle : "normal",
+			fontColor: 'white',
+			fontSize: '12px',
+			labelTemplate: '<%=label%>: <%=value%>',
+			padding: {
+				top: 10,
+				right: 10,
+				bottom: 10,
+				left: 10
+			},
+			offset: {
+				left: 0,
+				top: 0
+			},
+			border: {
+				width: 0,
+				color: '#000'
+			},
+			showHighlight: true,
+			highlight: {
+				stroke: {
+					width: 1,
+					color: 'rgba(230,230,230,0.25)'
+				},
+				fill: 'rgba(255,255,255,0.25)'
+			}
+		}
+	},
+	options = (options) ? mergeChartConfig(defaults, options) : defaults;
 
 	function registerTooltip(ctx,areaObj,data,type) {
 		chart.tooltips.push(new Tooltip(
@@ -339,41 +244,8 @@ var Chart = function(context, options){
 		context.scale(window.devicePixelRatio, window.devicePixelRatio);
 	}
 
-	this.PolarArea = function(data,options){
-	
-		chart.PolarArea.defaults = {
-			scaleOverlay : true,
-			scaleOverride : false,
-			scaleSteps : null,
-			scaleStepWidth : null,
-			scaleStartValue : null,
-			scaleShowLine : true,
-			scaleLineColor : "rgba(0,0,0,.1)",
-			scaleLineWidth : 1,
-			scaleShowLabels : true,
-			scaleLabel : "<%=value%>",
-			scaleFontFamily : "'Arial'",
-			scaleFontSize : 12,
-			scaleFontStyle : "normal",
-			scaleFontColor : "#666",
-			scaleShowLabelBackdrop : true,
-			scaleBackdropColor : "rgba(255,255,255,0.75)",
-			scaleBackdropPaddingY : 2,
-			scaleBackdropPaddingX : 2,
-			segmentShowStroke : true,
-			segmentStrokeColor : "#fff",
-			segmentStrokeWidth : 2,
-			animation : true,
-			animationSteps : 100,
-			animationEasing : "easeOutBounce",
-			animateRotate : true,
-			animateScale : false,
-			onAnimationComplete : null,
-			showTooltips : true
-		};
-		
-		var config = (options)? mergeChartConfig(chart.PolarArea.defaults,options) : chart.PolarArea.defaults;
-		
+	this.PolarArea = function(data,options) {
+		var config = (options) ? mergeChartConfig(chart.defaults,options) : chart.defaults;
 		return new PolarArea(data,config,context);
 	};
 
@@ -550,18 +422,18 @@ var Chart = function(context, options){
 		
 		valueBounds = getValueBounds();
 
-		labelTemplateString = (config.scaleShowLabels)? config.scaleLabel : null;
+		labelTemplateString = (config.labels.show) ? config.labels.template : null;
 
 		//Check and set the scale
-		if (!config.scaleOverride){
+		if (!config.scale.override){
 			
 			calculatedScale = calculateScale(scaleHeight,valueBounds.maxSteps,valueBounds.minSteps,valueBounds.maxValue,valueBounds.minValue,labelTemplateString);
 		}
 		else {
 			calculatedScale = {
-				steps : config.scaleSteps,
-				stepValue : config.scaleStepWidth,
-				graphMin : config.scaleStartValue,
+				steps : config.scale.steps,
+				stepValue : config.scale.stepWidth,
+				graphMin : config.scale.startValue,
 				labels : []
 			}
 			populateLabels(labelTemplateString, calculatedScale.labels,calculatedScale.steps,config.scaleStartValue,config.scaleStepWidth);
@@ -576,13 +448,13 @@ var Chart = function(context, options){
 			maxSize = (Min([width,height])/2);
 			//Remove whatever is larger - the font size or line width.
 			
-			maxSize -= Max([config.scaleFontSize*0.5,config.scaleLineWidth*0.5]);
+			maxSize -= Max([config.labels.font.size*0.5,config.grid.width*0.5]);
 			
-			labelHeight = config.scaleFontSize*2;
+			labelHeight = config.labels.font.size*2;
 			//If we're drawing the backdrop - add the Y padding to the label height and remove from drawing region.
-			if (config.scaleShowLabelBackdrop){
-				labelHeight += (2 * config.scaleBackdropPaddingY);
-				maxSize -= config.scaleBackdropPaddingY*1.5;
+			if (config.labels.backdrop.show){
+				labelHeight += (2 * config.labels.backdrop.paddingY);
+				maxSize -= config.labels.backdrop.paddingY*1.5;
 			}
 			
 			scaleHeight = maxSize;
@@ -592,33 +464,33 @@ var Chart = function(context, options){
 		function drawScale(){
 			for (var i=0; i<calculatedScale.steps; i++){
 				//If the line object is there
-				if (config.scaleShowLine){
+				if (config.grid.width > 0){
 					ctx.beginPath();
 					ctx.arc(width/2, height/2, scaleHop * (i + 1), 0, (Math.PI * 2), true);
-					ctx.strokeStyle = config.scaleLineColor;
-					ctx.lineWidth = config.scaleLineWidth;
+					ctx.strokeStyle = config.grid.color;
+					ctx.lineWidth = config.grid.width;
 					ctx.stroke();
 				}
 
-				if (config.scaleShowLabels){
+				if (config.labels.show){
 					ctx.textAlign = "center";
-					ctx.font = config.scaleFontStyle + " " + config.scaleFontSize + "px " + config.scaleFontFamily;
+					ctx.font = config.labels.font.style + " " + config.labels.font.size + "px " + config.labels.font.family;
 					 var label =  calculatedScale.labels[i];
 					//If the backdrop object is within the font object
-					if (config.scaleShowLabelBackdrop){
+					if (config.labels.backdrop.show){
 						var textWidth = ctx.measureText(label).width;
-						ctx.fillStyle = config.scaleBackdropColor;
+						ctx.fillStyle = config.labels.backdrop.color;
 						ctx.beginPath();
 						ctx.rect(
-							Math.round(width/2 - textWidth/2 - config.scaleBackdropPaddingX),	 //X
-							Math.round(height/2 - (scaleHop * (i + 1)) - config.scaleFontSize*0.5 - config.scaleBackdropPaddingY),//Y
-							Math.round(textWidth + (config.scaleBackdropPaddingX*2)), //Width
-							Math.round(config.scaleFontSize + (config.scaleBackdropPaddingY*2)) //Height
+							Math.round(width/2 - textWidth/2 - config.labels.backdrop.paddingX),	 //X
+							Math.round(height/2 - (scaleHop * (i + 1)) - config.labels.font.size*0.5 - config.labels.backdrop.paddingY),//Y
+							Math.round(textWidth + (config.labels.backdrop.paddingX*2)), //Width
+							Math.round(config.labels.font.size + (config.labels.backdrop.paddingY*2)) //Height
 						);
 						ctx.fill();
 					}
 					ctx.textBaseline = "middle";
-					ctx.fillStyle = config.scaleFontColor;
+					ctx.fillStyle = config.labels.font.color;
 					ctx.fillText(label,width/2,height/2 - (scaleHop * (i + 1)));
 				}
 			}
@@ -657,9 +529,9 @@ var Chart = function(context, options){
 					registerTooltip(ctx,{type:'shape',points:points},{label:data[i].label,value:data[i].value},'PolarArea');
 				}
 
-				if(config.segmentShowStroke){
-					ctx.strokeStyle = config.segmentStrokeColor;
-					ctx.lineWidth = config.segmentStrokeWidth;
+				if(config.stroke.width > 0){
+					ctx.strokeStyle = config.stroke.color;
+					ctx.lineWidth = config.stroke.width;
 					ctx.stroke();
 				}
 				startAngle += rotateAnimation*angleStep;
@@ -1505,7 +1377,7 @@ var Chart = function(context, options){
 	
 	function animationLoop(config,drawScale,drawData,ctx){
 		var animFrameAmount = (config.animation)? 1/CapValue(config.animationSteps,Number.MAX_VALUE,1) : 1,
-			easingFunction = animationOptions[config.animationEasing],
+			easingFunction = chart.animationOptions[config.animationEasing],
 			percentAnimComplete =(config.animation)? 0 : 1;
 		
 	
@@ -1718,4 +1590,138 @@ var Chart = function(context, options){
 		pseudoEl.parentNode.removeChild(pseudoEl);
 		return "rgb("+rCur+','+gCur+','+bCur+')';
 	}
+
+	//Easing functions adapted from Robert Penner's easing equations
+	//http://www.robertpenner.com/easing/
+	
+	this.animationOptions = {
+		linear : function (t){
+			return t;
+		},
+		easeInQuad: function (t) {
+			return t*t;
+		},
+		easeOutQuad: function (t) {
+			return -1 *t*(t-2);
+		},
+		easeInOutQuad: function (t) {
+			if ((t/=1/2) < 1) return 1/2*t*t;
+			return -1/2 * ((--t)*(t-2) - 1);
+		},
+		easeInCubic: function (t) {
+			return t*t*t;
+		},
+		easeOutCubic: function (t) {
+			return 1*((t=t/1-1)*t*t + 1);
+		},
+		easeInOutCubic: function (t) {
+			if ((t/=1/2) < 1) return 1/2*t*t*t;
+			return 1/2*((t-=2)*t*t + 2);
+		},
+		easeInQuart: function (t) {
+			return t*t*t*t;
+		},
+		easeOutQuart: function (t) {
+			return -1 * ((t=t/1-1)*t*t*t - 1);
+		},
+		easeInOutQuart: function (t) {
+			if ((t/=1/2) < 1) return 1/2*t*t*t*t;
+			return -1/2 * ((t-=2)*t*t*t - 2);
+		},
+		easeInQuint: function (t) {
+			return 1*(t/=1)*t*t*t*t;
+		},
+		easeOutQuint: function (t) {
+			return 1*((t=t/1-1)*t*t*t*t + 1);
+		},
+		easeInOutQuint: function (t) {
+			if ((t/=1/2) < 1) return 1/2*t*t*t*t*t;
+			return 1/2*((t-=2)*t*t*t*t + 2);
+		},
+		easeInSine: function (t) {
+			return -1 * Math.cos(t/1 * (Math.PI/2)) + 1;
+		},
+		easeOutSine: function (t) {
+			return 1 * Math.sin(t/1 * (Math.PI/2));
+		},
+		easeInOutSine: function (t) {
+			return -1/2 * (Math.cos(Math.PI*t/1) - 1);
+		},
+		easeInExpo: function (t) {
+			return (t==0) ? 1 : 1 * Math.pow(2, 10 * (t/1 - 1));
+		},
+		easeOutExpo: function (t) {
+			return (t==1) ? 1 : 1 * (-Math.pow(2, -10 * t/1) + 1);
+		},
+		easeInOutExpo: function (t) {
+			if (t==0) return 0;
+			if (t==1) return 1;
+			if ((t/=1/2) < 1) return 1/2 * Math.pow(2, 10 * (t - 1));
+			return 1/2 * (-Math.pow(2, -10 * --t) + 2);
+			},
+		easeInCirc: function (t) {
+			if (t>=1) return t;
+			return -1 * (Math.sqrt(1 - (t/=1)*t) - 1);
+		},
+		easeOutCirc: function (t) {
+			return 1 * Math.sqrt(1 - (t=t/1-1)*t);
+		},
+		easeInOutCirc: function (t) {
+			if ((t/=1/2) < 1) return -1/2 * (Math.sqrt(1 - t*t) - 1);
+			return 1/2 * (Math.sqrt(1 - (t-=2)*t) + 1);
+		},
+		easeInElastic: function (t) {
+			var s=1.70158;var p=0;var a=1;
+			if (t==0) return 0;  if ((t/=1)==1) return 1;  if (!p) p=1*.3;
+			if (a < Math.abs(1)) { a=1; var s=p/4; }
+			else var s = p/(2*Math.PI) * Math.asin (1/a);
+			return -(a*Math.pow(2,10*(t-=1)) * Math.sin( (t*1-s)*(2*Math.PI)/p ));
+		},
+		easeOutElastic: function (t) {
+			var s=1.70158;var p=0;var a=1;
+			if (t==0) return 0;  if ((t/=1)==1) return 1;  if (!p) p=1*.3;
+			if (a < Math.abs(1)) { a=1; var s=p/4; }
+			else var s = p/(2*Math.PI) * Math.asin (1/a);
+			return a*Math.pow(2,-10*t) * Math.sin( (t*1-s)*(2*Math.PI)/p ) + 1;
+		},
+		easeInOutElastic: function (t) {
+			var s=1.70158;var p=0;var a=1;
+			if (t==0) return 0;  if ((t/=1/2)==2) return 1;  if (!p) p=1*(.3*1.5);
+			if (a < Math.abs(1)) { a=1; var s=p/4; }
+			else var s = p/(2*Math.PI) * Math.asin (1/a);
+			if (t < 1) return -.5*(a*Math.pow(2,10*(t-=1)) * Math.sin( (t*1-s)*(2*Math.PI)/p ));
+			return a*Math.pow(2,-10*(t-=1)) * Math.sin( (t*1-s)*(2*Math.PI)/p )*.5 + 1;
+		},
+		easeInBack: function (t) {
+			var s = 1.70158;
+			return 1*(t/=1)*t*((s+1)*t - s);
+		},
+		easeOutBack: function (t) {
+			var s = 1.70158;
+			return 1*((t=t/1-1)*t*((s+1)*t + s) + 1);
+		},
+		easeInOutBack: function (t) {
+			var s = 1.70158; 
+			if ((t/=1/2) < 1) return 1/2*(t*t*(((s*=(1.525))+1)*t - s));
+			return 1/2*((t-=2)*t*(((s*=(1.525))+1)*t + s) + 2);
+		},
+		easeInBounce: function (t) {
+			return 1 - chart.animationOptions.easeOutBounce (1-t);
+		},
+		easeOutBounce: function (t) {
+			if ((t/=1) < (1/2.75)) {
+				return 1*(7.5625*t*t);
+			} else if (t < (2/2.75)) {
+				return 1*(7.5625*(t-=(1.5/2.75))*t + .75);
+			} else if (t < (2.5/2.75)) {
+				return 1*(7.5625*(t-=(2.25/2.75))*t + .9375);
+			} else {
+				return 1*(7.5625*(t-=(2.625/2.75))*t + .984375);
+			}
+		},
+		easeInOutBounce: function (t) {
+			if (t < 1/2) return chart.animationOptions.easeInBounce (t*2) * .5;
+			return chart.animationOptions.easeOutBounce (t*2-1) * .5 + 1*.5;
+		}
+	};
 }
