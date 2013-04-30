@@ -63,19 +63,29 @@ window.Chart = function(context, options){
 			fontColor: 'white',
 			fontSize: '12px',
 			labelTemplate: '<%=label%>: <%=value%>',
+			height: 24,
 			padding: {
-				top: 10,
-				right: 10,
-				bottom: 10,
-				left: 10
+				top: 4,
+				right: 8,
+				bottom: 4,
+				left: 8
 			},
+			position: 'bottom center',
 			offset: {
 				left: 0,
 				top: 0
 			},
 			border: {
 				width: 0,
-				color: '#000'
+				color: 'black',
+				radius: 4
+			},
+			showShadow: true,
+			shadow: {
+				color: 'rgba(0,0,0,0.9)',
+				blur: 8,
+				offsetX: 0,
+				offsetY: 0
 			},
 			showHighlight: true,
 			highlight: {
@@ -130,6 +140,10 @@ window.Chart = function(context, options){
 		}
 
 		this.render = function(x,y) {
+			this.ctx.shadowColor = undefined;
+			this.ctx.shadowBlur = 0;
+			this.ctx.shadowOffsetX = 0;
+			this.ctx.shadowOffsetY = 0;
 			if(this.savedState == null) {
 				this.ctx.putImageData(chart.savedState,0,0);
 				this.savedState = this.ctx.getImageData(0,0,this.ctx.canvas.width,this.ctx.canvas.height);
@@ -143,7 +157,6 @@ window.Chart = function(context, options){
 					switch(this.areaObj.type) {
 						case 'rect':
 							this.ctx.strokeRect(this.areaObj.x, this.areaObj.y, this.areaObj.width, this.areaObj.height);
-							this.ctx.fillStyle = chart.options.tooltips.highlight.fill;
 							this.ctx.fillRect(this.areaObj.x, this.areaObj.y, this.areaObj.width, this.areaObj.height);
 							break;
 						case 'circle':
@@ -167,32 +180,113 @@ window.Chart = function(context, options){
 					this.ctx.putImageData(this.highlightState,0,0);
 				}
 			}
-			//if(this.x != x || this.y != y) {
-				var posX = x+chart.options.tooltips.offset.left,
-					posY = y+chart.options.tooltips.offset.top,
-					tpl = tmpl(chart.options.tooltips.labelTemplate, this.data),
-					rectWidth = chart.options.tooltips.padding.left+this.ctx.measureText(tpl).width+chart.options.tooltips.padding.right;
-				if(posX + rectWidth > ctx.canvas.width) {
-					posX -= posX-rectWidth < 0 ? posX : rectWidth;
+			var posX = x+options.tooltips.offset.left,
+				posY = y+options.tooltips.offset.top,
+				tpl = tmpl(options.tooltips.labelTemplate, this.data),
+				rectWidth = options.tooltips.padding.left+this.ctx.measureText(tpl).width+options.tooltips.padding.right,
+				position = options.tooltips.position.split(" "),
+				height = options.tooltips.height;
+
+			// adjust height on fontsize
+			if(options.tooltips.fontSize.match(/[0-9]+(.[0-9]+)?px/)) {
+				height = parseInt(options.tooltips.fontSize);
+			} else if(options.tooltips.fontSize.match(/[0-9]+(.[0-9]+)?(\%|em)/)) {
+				function getDefaultFontSize(pa) {
+					pa = pa || document.body;
+					var who = document.createElement('div');
+
+					who.style.cssText='display:inline-block; padding:0; line-height:1; position:absolute; visibility:hidden; font-size:1em';
+
+					who.appendChild(document.createTextNode('M'));
+					pa.appendChild(who);
+					var fs = [who.offsetWidth, who.offsetHeight];
+					pa.removeChild(who);
+					return fs[1];
 				}
-				if(posY + 24 > ctx.canvas.height) {
-					posY -= 24;
+				var size = parseFloat(options.tooltips.fontSize);
+				if(options.tooltips.fontSize.match(/[0-9]+(.[0-9]+)?\%/)) {
+					size /= 100;
 				}
-				this.ctx.fillStyle = chart.options.tooltips.background;
-				this.ctx.fillRect(posX, posY, rectWidth, 24);
-				if(chart.options.tooltips.border.width > 0) {
-					this.ctx.fillStyle = chart.options.tooltips.order.color;
-					this.ctx.lineWidth = chart.options.tooltips.border.width;
-					this.ctx.strokeRect(posX, posY, rectWidth, 24);
+				height = size*getDefaultFontSize(this.ctx.canvas.parentNode);
+			}
+
+			height += options.tooltips.padding.top+options.tooltips.padding.bottom;
+
+			// check relative position
+			for(var i in position) {
+				if(i == 0) {
+					if(position[i] == "bottom") {
+						posY -= height;
+					} else if(position[i] == "center") {
+						posY -= height/2;
+						if(position.length == 1) {
+							posX -= rectWidth/2;
+						}
+					}
 				}
-				this.ctx.font = chart.options.tooltips.fontStyle+ " "+chart.options.tooltips.fontSize+" " + chart.options.tooltips.fontFamily;
-				this.ctx.fillStyle = chart.options.tooltips.fontColor;
-				this.ctx.textAlign = 'center';
-				this.ctx.textBaseline = 'middle';
-				this.ctx.fillText(tpl, posX+rectWidth/2, posY+12);
-				this.x = x;
-				this.y = y;
-			//}
+				if(i == 1) {
+					if(position[i] == "right") {
+						posX -= rectWidth;
+					} else if(position[i] == "center") {
+						posX -= rectWidth/2;
+					}
+				}
+			}
+
+			// check edges
+			if(posX + rectWidth > ctx.canvas.width) {
+				posX -= posX+rectWidth-ctx.canvas.width;
+			}
+			if(posX < 0) {
+				posX = 0;
+			}
+			if(posY + height > ctx.canvas.height) {
+				posY -= posY+height-ctx.canvas.height;
+			}
+			if(posY < 0) {
+				posY = 0;
+			}
+			this.ctx.fillStyle = options.tooltips.background;
+			if(options.tooltips.showShadow) {
+				this.ctx.shadowColor = options.tooltips.shadow.color;
+				this.ctx.shadowBlur = options.tooltips.shadow.blur;
+				this.ctx.shadowOffsetX = options.tooltips.shadow.offsetX;
+				this.ctx.shadowOffsetY = options.tooltips.shadow.offsetY;
+			}
+			if(!options.tooltips.border.radius) {
+				this.ctx.fillRect(posX, posY, rectWidth, height);
+				if(options.tooltips.border.width > 0) {
+					this.ctx.fillStyle = options.tooltips.border.color;
+					this.ctx.lineWidth = options.tooltips.border.width;
+					this.ctx.strokeRect(posX, posY, rectWidth, height);
+				}
+			} else {
+				var radius = options.tooltips.border.radius > 12 ? 12 : options.tooltips.border.radius;
+				this.ctx.beginPath();
+				this.ctx.moveTo(posX+radius, posY);
+				this.ctx.lineTo(posX+rectWidth-radius, posY);
+				this.ctx.quadraticCurveTo(posX+rectWidth, posY, posX+rectWidth, posY+radius);
+				this.ctx.lineTo(posX+rectWidth, posY+height-radius);
+				this.ctx.quadraticCurveTo(posX+rectWidth, posY+height, posX+rectWidth-radius, posY+height);
+				this.ctx.lineTo(posX+radius, posY+height);
+				this.ctx.quadraticCurveTo(posX, posY+height, posX, posY+height-radius);
+				this.ctx.lineTo(posX, posY+radius);
+				this.ctx.quadraticCurveTo(posX, posY, posX+radius, posY);
+				this.ctx.fill();
+				if(options.tooltips.border.width > 0) {
+					this.ctx.strokeStyle = options.tooltips.border.color;
+					this.ctx.lineWidth = options.tooltips.border.width;
+					this.ctx.stroke();
+				}
+				this.ctx.closePath();
+			}
+			this.ctx.font = options.tooltips.fontStyle+ " "+options.tooltips.fontSize+" " + options.tooltips.fontFamily;
+			this.ctx.fillStyle = options.tooltips.fontColor;
+			this.ctx.textAlign = 'center';
+			this.ctx.textBaseline = 'middle';
+			this.ctx.fillText(tpl, posX+rectWidth/2, posY+height/2);
+			this.x = x;
+			this.y = y;
 		}
 	}
 
@@ -1548,7 +1642,6 @@ window.Chart = function(context, options){
 
 	//Easing functions adapted from Robert Penner's easing equations
 	//http://www.robertpenner.com/easing/
-	
 	this.animationOptions = {
 		linear : function (t){
 			return t;
