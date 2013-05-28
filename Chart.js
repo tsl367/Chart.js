@@ -956,7 +956,9 @@ window.Chart = function(context, options){
 			}
 
 			for (var i=0; i<data.length; i++){
-				var segmentAngle = rotateAnimation * ((data[i].value/segmentTotal) * (Math.PI*2));
+				var segmentAngle = rotateAnimation * ((data[i].value/segmentTotal) * (Math.PI*2)),
+					strokeX = scaleAnimation*pieRadius*Math.cos(cumulativeAngle),
+					strokeY = scaleAnimation*pieRadius*Math.sin(cumulativeAngle);
 				ctx.beginPath();
 				ctx.arc(width/2,height/2,scaleAnimation * pieRadius,cumulativeAngle,cumulativeAngle + segmentAngle);
 				ctx.lineTo(width/2,height/2);
@@ -1022,12 +1024,13 @@ window.Chart = function(context, options){
 				}
 				
 				if(config.segmentShowStroke){
-					ctx.lineWidth = config.segmentStrokeWidth;
-					ctx.strokeStyle = config.segmentStrokeColor;
-					ctx.stroke();
+					strokeLine(ctx, config.segmentStrokeWidth, config.segmentStrokeColor, width/2, height/2, width/2+strokeX, height/2+strokeY);
 				}
 				cumulativeAngle += segmentAngle;
 			}			
+			if(config.segmentShowStroke){
+				strokeLine(ctx, config.segmentStrokeWidth, config.segmentStrokeColor, width/2, height/2, width/2, 5);
+			}
 		}		
 	}
 
@@ -1662,6 +1665,15 @@ window.Chart = function(context, options){
         }
     }
 	
+	function strokeLine(ctx, width, style, x1, y1, x2, y2) {
+		ctx.lineWidth = width;
+		ctx.strokeStyle = style;
+		ctx.beginPath();
+		ctx.moveTo(x1,y1);
+		ctx.lineTo(x2,y2);
+		ctx.closePath();
+		ctx.stroke();
+	}
 	//Max value from array
 	function Max( array ){
 		return Math.max.apply( Math, array );
