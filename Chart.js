@@ -293,22 +293,16 @@ window.Chart = function(context, options){
 
 	this.savedState = null;
 
-	function getPosition(e) {
+	function getPosition(element) {
 		var xPosition = 0;
 		var yPosition = 0;
 
-		while(e) {
-			xPosition += (e.offsetLeft + e.clientLeft);
-			yPosition += (e.offsetTop + e.clientTop);
-			e = e.offsetParent;
+		while(element) {
+			xPosition += (element.offsetLeft - element.scrollLeft + element.clientLeft);
+			yPosition += (element.offsetTop - element.scrollTop + element.clientTop);
+			element = element.offsetParent;
 		}
-		if(window.pageXOffset > 0 || window.pageYOffset > 0) {
-			xPosition -= window.pageXOffset;
-			yPosition -= window.pageYOffset;
-		} else if(document.body.scrollLeft > 0 || document.body.scrollTop > 0) {
-			xPosition -= document.body.scrollLeft;
-			yPosition -= document.body.scrollTop;
-		}
+		
 		return { x: xPosition, y: yPosition };
 	}
 	
