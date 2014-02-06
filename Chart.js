@@ -293,14 +293,14 @@ window.Chart = function(context, options){
 
 	this.savedState = null;
 
-	function getPosition(element) {
+	function getPosition(e) {
 		var xPosition = 0;
 		var yPosition = 0;
 
-		while(element) {
-			xPosition += (element.offsetLeft - element.scrollLeft + element.clientLeft);
-			yPosition += (element.offsetTop - element.scrollTop + element.clientTop);
-			element = element.offsetParent;
+		while(e) {
+			xPosition += (e.offsetLeft - e.scrollLeft + e.clientLeft);
+			yPosition += (e.offsetTop - e.scrollTop + e.clientTop);
+			e = e.offsetParent;
 		}
 		
 		return { x: xPosition, y: yPosition };
