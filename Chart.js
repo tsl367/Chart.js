@@ -302,7 +302,6 @@ window.Chart = function(context, options){
 			yPosition += (e.offsetTop - e.scrollTop + e.clientTop);
 			e = e.offsetParent;
 		}
-		
 		return { x: xPosition, y: yPosition };
 	}
 	
