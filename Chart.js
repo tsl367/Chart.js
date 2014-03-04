@@ -263,10 +263,10 @@ window.Chart = function(context, options){
 					posY = y+options.tooltips.offset.top,
 					tpl = tmpl(options.tooltips.labelTemplate, this.data),
 					rectWidth = options.tooltips.padding.left+this.ctx.measureText(tpl).width+options.tooltips.padding.right;
-				if(posX + rectWidth > ctx.canvas.width) {
+				if(posX + rectWidth > this.ctx.canvas.width) {
 					posX -= posX-rectWidth < 0 ? posX : rectWidth;
 				}
-				if(posY + 24 > ctx.canvas.height) {
+				if(posY + 24 > this.ctx.canvas.height) {
 					posY -= 24;
 				}
 				this.ctx.fillStyle = options.tooltips.background;
